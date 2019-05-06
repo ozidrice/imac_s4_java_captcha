@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import fr.upem.captcha.controller.AppController;
 import fr.upem.captcha.model.Image;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

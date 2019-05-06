@@ -22,7 +22,7 @@ public class Image{
 		PANNEAU_4MILES("4miles.jpg", new Sign()),
 		PANNEAU_NEWYORK("NYsigns.jpg", new Sign()),
 		PHOTOGRAPHIE_APPAREIL_PHOTO("toomanypics.jpg"),
-		RANDOM1("téléchargement.jpg"),
+		RANDOM1("tï¿½lï¿½chargement.jpg"),
 		RANDOM2("13425a41957e98049d5cec145da06c69-pays-de-lorient-il-photographie-les-pollutions-sur-nos-plages.jpg"),
 		RANDOM3("photographe-mariage-paris-30.jpg"),
 		RANDOM4("hg08-tt-width-836-height-550-fill-1-bgcolor-000000.jpg"),

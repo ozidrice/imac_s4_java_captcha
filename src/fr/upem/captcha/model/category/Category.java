@@ -8,7 +8,7 @@ import javax.naming.SizeLimitExceededException;
 import fr.upem.captcha.model.Image;
 
 public abstract  class Category {	
-	private String name; //Going right after "Veuillez sélectionner les images qui contiennent..."
+	private String name; //Going right after "Veuillez sï¿½lectionner les images qui contiennent..."
 	
 	//Can only be created by others categories
 	Category(String name) {

@@ -48,7 +48,7 @@ public class AppController{
 		
 		//Get random category
 		Category category = categoryLevel.get(rand.nextInt(categoryLevel.size()));
-		message.set("Veuillez sélectionner les images qui contiennent..." + category.getName());
+		message.set("SÃ©lectionner : " + category.getName());
 		System.out.println(category.getLevel());
 		
 		//Set image of the selected category
@@ -77,9 +77,9 @@ public class AppController{
 	
 	public static void validate() {
 		if(selectedImagesAreGood()) {
-			View.alert(Alert.AlertType.INFORMATION, "Félicitation, vous n'êtes pas un robot !");
+			View.alert(Alert.AlertType.INFORMATION, "FÃ©licitations, vous n'Ãªtes pas un robot !");
 		}else {
-			View.alert(Alert.AlertType.ERROR, "Désolé, vous n'avez pas pas réussi le test");
+			View.alert(Alert.AlertType.ERROR, "DÃ©solÃ©, vous n'avez pas rÃ©ussi le test");
 			setupCatpcha(LEVEL2_CATEGORY);
 		}
 		System.out.println();
