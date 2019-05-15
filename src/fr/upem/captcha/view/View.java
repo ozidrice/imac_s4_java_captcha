@@ -11,7 +11,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class View{
-	private static final String TITLE = "OMG";
+	private static final String TITLE = "Captcha";
 	private static final int WIDHT = 1280;
 	private static final int HEIGHT = 720;
 	private Stage primaryStage;

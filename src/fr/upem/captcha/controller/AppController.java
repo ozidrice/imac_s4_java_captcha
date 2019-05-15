@@ -70,8 +70,7 @@ public class AppController{
 		Class<? extends Image> imageClass = imageClassList.get(rand.nextInt(imageClassList.size()));
 		Image imageCategory = null;
 		try {
-			imageCategory = imageClass.getDeclaredConstructor().newInstance();
-		
+			imageCategory = imageClass.getDeclaredConstructor().newInstance();		
 			message.set("Veuillez sélectionner les images qui contiennent..." + imageCategory.getName());
 			
 			//Set image of the selected category
@@ -99,7 +98,7 @@ public class AppController{
 	 */
 	public static void validate() {
 		if(selectedImagesAreGood()) {
-			View.alert(Alert.AlertType.INFORMATION, "Félicitation, vous n'êtes pas un robot !");
+			View.alert(Alert.AlertType.INFORMATION, "FÃ©licitations, vous n'Ãªtes pas un robot !");
 		}else {
 			View.alert(Alert.AlertType.ERROR, "Désolé, vous n'avez pas pas réussi le test");
 			setupCatpcha(ImageLvl2.getAllClass());
