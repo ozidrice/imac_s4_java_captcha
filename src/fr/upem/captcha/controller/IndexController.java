@@ -3,7 +3,6 @@ package fr.upem.captcha.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import fr.upem.captcha.model.Image;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -15,14 +14,13 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 
 public class IndexController implements Initializable{	
-	private static final String IMAGE_FOLDER = "/fr/upem/captcha/images/";
-	
 	@FXML
 	private BorderPane rootPane;
 	
@@ -38,11 +36,18 @@ public class IndexController implements Initializable{
 	@FXML
 	private Button valider;
 	
+	/**
+	 * Launched when the validator buttun is clicked
+	 * @param evt Event throwed
+	 */
 	@FXML
 	public void handleValidate(ActionEvent evt){
 		AppController.validate();
 	}
 
+	/**
+	 * Initalize the view, controller is ready to go when finished
+	 */
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		setMessageListener();
@@ -50,6 +55,9 @@ public class IndexController implements Initializable{
 		setShowedImageListener();
 	}
 	
+	/**
+	 * Set up message Listener
+	 */
 	private void setMessageListener() {
 		AppController.getMessageProperty().addListener(new ChangeListener<String>() {
 			@Override
@@ -59,6 +67,9 @@ public class IndexController implements Initializable{
 		});
 	}
 	
+	/**
+	 * Set up images Listener
+	 */
 	private void setSelectedImageListener() {
 		AppController.getObservableSelectedImage().addListener(new ListChangeListener<Integer>() {
 			@Override
@@ -75,6 +86,10 @@ public class IndexController implements Initializable{
 		});
 	}
 	
+	/**
+	 * 
+	 * @param index
+	 */
 	private void setSelectedStatus(int index) {
 		Node imageNode = getIndexFromGridPane(index);
 		if(imageNode != null) {
@@ -101,18 +116,21 @@ public class IndexController implements Initializable{
 	}
 	
 	private void setShowedImageListener() {
-		AppController.getObservableShowedImage().addListener(new ListChangeListener<fr.upem.captcha.model.Image>() {
+		AppController.getObservableShowedImage().addListener(new ListChangeListener<URL>() {
 			@Override
-			public void onChanged(Change<? extends fr.upem.captcha.model.Image> change) {
-				if(change.getList().size() == AppController.NUMBER_OF_IMAGE_PRINTED) {
+			public void onChanged(Change<? extends URL> change) {
+				if(AppController.getObservableShowedImage().size() == AppController.NUMBER_OF_IMAGE_PRINTED) {
+					//Clear grid content
+					Node node = gridPane.getChildren().get(0);
+					gridPane.getChildren().clear();
+					gridPane.getChildren().add(0,node);
 					//Get images
 					int nbRows = nbRows(); 
 					for(int i = 0; i < nbRows; i++) {
 						for(int j = 0; j < nbRows; j++) { 
 							int index = i*nbRows+j;
-							Image image = change.getList().get(index);
-							ImageView imageView = new ImageView(IMAGE_FOLDER+image.getFilename());
-							imageView.setUserData(image);
+							ImageView imageView = new ImageView(new Image(AppController.getObservableShowedImage().get(index).toExternalForm()));
+							imageView.setUserData(change);
 							imageView.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<Event>() {
 								@Override
 								public void handle(Event evt) {
@@ -121,7 +139,6 @@ public class IndexController implements Initializable{
 							});
 							imageView.setFitWidth(130);
 							imageView.setFitHeight(130);
-							
 							gridPane.add(imageView, j, i);
 						}
 					}

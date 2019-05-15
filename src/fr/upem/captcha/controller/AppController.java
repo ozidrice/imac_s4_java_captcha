@@ -1,14 +1,15 @@
 package fr.upem.captcha.controller;
 
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
-import fr.upem.captcha.model.Image;
-import fr.upem.captcha.model.category.Category;
-import fr.upem.captcha.model.category.RoundSign;
-import fr.upem.captcha.model.category.Sign;
+import fr.upem.captcha.images.Image;
+import fr.upem.captcha.images.ImageLvl1;
+import fr.upem.captcha.images.ImageLvl2;
 import fr.upem.captcha.view.View;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -21,15 +22,9 @@ public class AppController{
 	
 	public  static final int NUMBER_OF_IMAGE_PRINTED = 9;
 	private static final int MAX_NUMBER_OF_IMAGE_OF_THE_CATEGORY = 4;
-	private static final ArrayList<Category> LEVEL1_CATEGORY = new ArrayList<Category>(Arrays.asList(
-		new Sign()
-	));
-	private static final ArrayList<Category> LEVEL2_CATEGORY = new ArrayList<Category>(Arrays.asList(
-		new RoundSign()
-	));
 	
-	private static ObservableList<Image> showedImage = FXCollections.observableArrayList(new ArrayList<Image>(NUMBER_OF_IMAGE_PRINTED));
-	private static ArrayList<Image> imagesNeededToSuccess = new ArrayList<Image>();
+	private static ObservableList<URL> showedImage = FXCollections.observableArrayList(new ArrayList<URL>(NUMBER_OF_IMAGE_PRINTED));
+	private static ArrayList<URL> imagesNeededToSuccess = new ArrayList<URL>();
 	private static ObservableList<Integer> selectedImagesIndex = FXCollections.observableArrayList(new ArrayList<Integer>());
 	private static StringProperty message = new SimpleStringProperty();
 	
@@ -39,31 +34,7 @@ public class AppController{
 	 */
 	public static void launch(Stage primaryStage) {
 		createView(primaryStage); //Need to be before setup to init listeners
-		setupCatpcha(LEVEL1_CATEGORY);		
-	}
-	
-	private static void setupCatpcha(ArrayList<Category> categoryLevel) {
-		Random rand = new Random();
-		ArrayList<Image> tmpImagesToShow = new ArrayList<Image>();
-		
-		//Get random category
-		Category category = categoryLevel.get(rand.nextInt(categoryLevel.size()));
-		message.set("Veuillez sélectionner les images qui contiennent..." + category.getName());
-		System.out.println(category.getLevel());
-		
-		//Set image of the selected category
-		int numberOfImagesRandom = rand.nextInt(MAX_NUMBER_OF_IMAGE_OF_THE_CATEGORY)+1;
-		tmpImagesToShow.addAll(Image.random(numberOfImagesRandom, category));
-		imagesNeededToSuccess.addAll(tmpImagesToShow);
-		
-		//Pick random images to fill the array
-		tmpImagesToShow.addAll(Image.random(NUMBER_OF_IMAGE_PRINTED - numberOfImagesRandom, null, category));
-		
-		//Randomise order
-		Collections.shuffle(tmpImagesToShow);
-		
-		//Push to view
-		showedImage.addAll(tmpImagesToShow);
+		setupCatpcha(ImageLvl1.getAllClass());		
 	}
 	
 	/**
@@ -75,20 +46,73 @@ public class AppController{
 		view.launch();
 	}
 	
+	/**
+	 * Clear all the saved values
+	 */
+	private static void clearAll() {
+		showedImage.clear();
+		imagesNeededToSuccess.clear();
+		selectedImagesIndex.clear();
+		message.set("");
+	}
+	
+	/**
+	 * Set up the catcha
+	 * @param imageClassList List of class
+	 */
+	private static void setupCatpcha(List<Class<? extends Image>> imageClassList) {
+		clearAll();
+		
+		Random rand = new Random();
+		List<URL> tmpImagesToShow = new ArrayList<URL>();
+		
+		//Get random category
+		Class<? extends Image> imageClass = imageClassList.get(rand.nextInt(imageClassList.size()));
+		Image imageCategory = null;
+		try {
+			imageCategory = imageClass.getDeclaredConstructor().newInstance();
+		
+			message.set("Veuillez sélectionner les images qui contiennent..." + imageCategory.getName());
+			
+			//Set image of the selected category
+			int numberOfImagesRandom = rand.nextInt(MAX_NUMBER_OF_IMAGE_OF_THE_CATEGORY)+1;
+			tmpImagesToShow.addAll(imageCategory.getRandomPhotosURL(numberOfImagesRandom));
+			imagesNeededToSuccess.addAll(tmpImagesToShow);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e) {
+			System.err.println("Can't set new instance");
+			e.printStackTrace();
+		}
+		
+		//Pick random images to fill the array
+		tmpImagesToShow.addAll(Image.getRandomURL(imageCategory, NUMBER_OF_IMAGE_PRINTED - tmpImagesToShow.size()));
+		
+		//Randomise order
+		Collections.shuffle(tmpImagesToShow);
+		
+		//Push to view
+		showedImage.addAll(tmpImagesToShow);
+	}
+	
+	/**
+	 * Function used when the captcha is validated
+	 */
 	public static void validate() {
 		if(selectedImagesAreGood()) {
 			View.alert(Alert.AlertType.INFORMATION, "Félicitation, vous n'êtes pas un robot !");
 		}else {
 			View.alert(Alert.AlertType.ERROR, "Désolé, vous n'avez pas pas réussi le test");
-			setupCatpcha(LEVEL2_CATEGORY);
+			setupCatpcha(ImageLvl2.getAllClass());
 		}
 		System.out.println();
 		
 	}
 	
+	/**
+	 * @return true if all of the needed image were selected
+	 */
 	public static boolean selectedImagesAreGood() {
 		if(selectedImagesIndex.size() == imagesNeededToSuccess.size()) {
-			@SuppressWarnings("unchecked")
 			ArrayList<Image> cpyImagesNeededToSuccess = (ArrayList<Image>) imagesNeededToSuccess.clone();
 			for (int index : selectedImagesIndex)
 				cpyImagesNeededToSuccess.remove(showedImage.get(index));
@@ -113,7 +137,7 @@ public class AppController{
 	 * Used to set up listener in view
 	 * @return ObservableList of Image that need to be printed on view
 	 */
-	public static ObservableList<Image> getObservableShowedImage(){
+	public static ObservableList<URL> getObservableShowedImage(){
 		return showedImage;
 	}
 	
